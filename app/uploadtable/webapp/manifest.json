@@ -1,0 +1,178 @@
+{
+  "_version": "1.65.0",
+  "sap.app": {
+    "id": "sravan.ust.uploadtable",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:lrop",
+      "version": "1.15.3",
+      "toolsId": "229aadb4-faa2-4d40-aa12-0883a70fae84"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/customer-master/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.130.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "sravan.ust.uploadtable.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": []
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "CustomerMasterList",
+          "target": "CustomerMasterList"
+        },
+        {
+          "pattern": "CustomerMaster({key}):?query:",
+          "name": "CustomerMasterObjectPage",
+          "target": "CustomerMasterObjectPage"
+        },
+        {
+          "pattern": "CustomerMaster({key})/Shipto({key2}):?query:",
+          "name": "ShiptoAddressObjectPage",
+          "target": "ShiptoAddressObjectPage"
+        }
+      ],
+      "targets": {
+        "CustomerMasterList": {
+          "type": "Component",
+          "id": "CustomerMasterList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/CustomerMaster",
+              "variantManagement": "Page",
+              "navigation": {
+                "CustomerMaster": {
+                  "detail": {
+                    "route": "CustomerMasterObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "CustomerMasterObjectPage": {
+          "type": "Component",
+          "id": "CustomerMasterObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/CustomerMaster",
+              "navigation": {
+                "Shipto": {
+                  "detail": {
+                    "route": "ShiptoAddressObjectPage"
+                  }
+                }
+              },
+              "content": {
+                "body": {
+                  "sections": {
+                    "Attachments": {
+                      "template": "sravan.ust.uploadtable.ext.fragment.Attachments",
+                      "position": {
+                        "placement": "After",
+                        "anchor": "Billto::LineItem"
+                      },
+                      "title": "Attachments"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ShiptoAddressObjectPage": {
+          "type": "Component",
+          "id": "ShiptoAddressObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/CustomerMaster/Shipto"
+            }
+          }
+        }
+      }
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  }
+}

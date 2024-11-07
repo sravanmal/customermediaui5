@@ -1,0 +1,26 @@
+{
+  "name": "customerui5",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "repository": "<Add your repository here>",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@cap-js/change-tracking": "^1.0.7",
+    "@sap/cds": "^8",
+    "express": "^4"
+  },
+  "devDependencies": {
+    "@cap-js/cds-types": "^0.6",
+    "@cap-js/sqlite": "^1",
+    "@sap/ux-specification": "UI5-1.130"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch-uploadtable": "cds watch --open uploadtable/webapp/index.html?sap-ui-xx-viewCache=false"
+  },
+  "sapux": [
+    "app/uploadtable",
+    "app/uploadtable"
+  ]
+}
