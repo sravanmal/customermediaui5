@@ -16,6 +16,14 @@ sap.ui.define([
 					console.log(err);
 				})
         },
+        onUploadCompleted: function(oEvent) {
+            const oUploadSetTable = this.byId("table-uploadSet");
+            oUploadSetTable.getItems("items")
+            const oBinding = oUploadSetTable.getBinding("items");
+            oBinding.refresh();
+
+        },
+
         _createEntity: function (item) {
             var data = {
                 MediaType: item.getMediaType(),
@@ -45,9 +53,33 @@ sap.ui.define([
 
     _uploadContent: function (item, id , oUploadSetTable) {
         var url = `/odata/v4/customer-master/media(${id})/content`
-        item.setUploadUrl(url);	
-        oUploadSetTable.setHttpRequestMethod("PUT")
-        oUploadSetTable.uploadItem(item);
+        // item.setUploadUrl(url);	
+        // oUploadSetTable.setHttpRequestMethod("PUT")
+        // oUploadSetTable.uploadItem(item);
+        var file = item._oFileObject;
+
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function(event) {
+                        var fileContent = event.target.result;
+                        fetch(`https://port4004-workspaces-ws-5nbsb.us10.trial.applicationstudio.cloud.sap/odata/v4/customer-master/media(${id})/content`, {
+                            method: 'PUT',
+                            body: fileContent
+                        })
+                        .then(function(putResponse) {
+                            if (!putResponse.ok) {
+                                throw new Error("PUT request failed.");
+                            }
+                            MessageToast.show("File uploaded and data updated successfully.");
+                            
+
+                        })
+                        .catch(function(error) {
+                            console.error("Error in upload sequence:", error);
+                        });
+                    };
+                    reader.readAsText(file);
+                };
     }		
     }
 
