@@ -1,105 +1,44 @@
-<core:FragmentDefinition xmlns:core="sap.ui.core" xmlns="sap.m" xmlns:macros="sap.fe.macros" xmlns:mvc="sap.ui.core.mvc" xmlns:f="sap.f"
- 	xmlns:mdc="sap.ui.mdc"
-	xmlns:mdct="sap.ui.mdc.table"
-	xmlns:vm="sap.ui.fl.variants"
-	xmlns:Table1="sap.ui.mdc.table.Table"
-	xmlns:upload="sap.m.upload"
-	xmlns:mdcat="sap.ui.mdc.actiontoolbar" >
-	
+<core:FragmentDefinition xmlns:core="sap.ui.core" xmlns="sap.m" xmlns:mdc="sap.ui.mdc"
+	xmlns:upload="sap.m.upload" xmlns:f="sap.f" xmlns:vm="sap.ui.fl.variants">
+
 	<f:DynamicPage id="page" core:require="{ handler: 'sravan/ust/uploadtable/ext/fragment/Attachments'}">
-	<f:content>
-		<Table
+		<f:content>
+			<Table
 				id="table-uploadSet"
+				width="auto"
+				mode="MultiSelect"
+				sticky="ColumnHeaders,HeaderToolbar"
+				fixedLayout="false"
+				inset="true"
+				autoPopinMode="true"
+				hiddenInPopin="None"
 				items="{path: '/media', templateShareable: false}"
-				selectionChange="onSelectionChange"
-                sticky="ColumnHeaders,HeaderToolbar">
+				selectionChange="onSelectionChange">
 
-		<headerToolbar>
+				<headerToolbar>
 					<OverflowToolbar>
-						<Title
-								text="Documents ()"
-								level="H2"
-						/>
+						<Title text="Documents ({= ${documents>/items}.length})" level="H2" />
 						<ToolbarSpacer />
-						
-						<SearchField
-                        width="20%"
-                        liveChange="onSearch"
-                    >
-                        <layoutData>
-                            <OverflowToolbarLayoutData
-                                priority="NeverOverflow"
-                            />
-                        </layoutData>
-                    </SearchField>
-                    <ToolbarSeparator />
-
-                    <!-- Use the UploadButtonPlaceholder to add the UploadButton to the toolbar -->
-                    <upload:ActionsPlaceholder id="uploadButton" placeholderFor="UploadButtonPlaceholder" />
-					
-                    <Button
-                        id="downloadSelectedButton"
-                        text="Download"
-                        enabled="false"
-                        press="onDownloadFiles"
-                    />
-                    <MenuButton text="Add">
-                        <menu>
-                            <Menu>
-                                <MenuItem
-                                    text="URL"
-                                    press="openAddOrEditDialog"
-                                />
-                            </Menu>
-                        </menu>
-                        <layoutData>
-                            <OverflowToolbarLayoutData
-                                priority="AlwaysOverflow"
-                            />
-                        </layoutData>
-                    </MenuButton>
-                    <Button
-                        id="removeDocumentButton"
-                        text="Remove"
-                        press="onRemoveButtonPress"
-                        enabled="false"
-                    >
-                        <layoutData>
-                            <OverflowToolbarLayoutData
-                                priority="AlwaysOverflow"
-                            />
-                        </layoutData>
-                    </Button>
-                    <Button
-                        id="renameButton"
-                        enabled="false"
-                        press="onRenameDocument"
-                        text="Rename"
-                    >
-                        <layoutData>
-                            <OverflowToolbarLayoutData
-                                priority="AlwaysOverflow"
-                            />
-                        </layoutData>
-                    </Button>
-                    <Button
-                        id="editUrlButton"
-                        text="Edit URL"
-                        enabled="false"
-                        press="onEditUrl"
-                    >
-                        <layoutData>
-                            <OverflowToolbarLayoutData
-                                priority="AlwaysOverflow"
-                            />
-                        </layoutData>
-                    </Button>
+						<SearchField width="20%" liveChange="onSearch" />
+						<ToolbarSeparator />
+						<upload:ActionsPlaceholder id="uploadButton" placeholderFor="UploadButtonPlaceholder" />
+						<Button id="downloadSelectedButton" text="Download" enabled="false" press="onDownloadFiles" />
+						<MenuButton text="Add">
+							<menu>
+								<Menu>
+									<MenuItem text="URL" press="openAddOrEditDialog" />
+								</Menu>
+							</menu>
+						</MenuButton>
+						<Button id="removeDocumentButton" text="Remove" enabled="false" press="onRemoveButtonPress" />
+						<Button id="renameButton" enabled="false" press="onRenameDocument" text="Rename" />
+						<Button id="editUrlButton" text="Edit URL" enabled="false" press="onEditUrl" />
 					</OverflowToolbar>
 				</headerToolbar>
 
 				<dependents>
-						<plugins.UploadSetwithTable
-						uploadUrl="/media"
+					<plugins.UploadSetwithTable
+						uploadUrl="/uploadFiles"
 						multiple="true"
 						beforeInitiatingItemUpload="handler.onBeforeInitiatingItemUpload"
 						beforeUploadStarts="handler.onBeforeUploadStarts"
@@ -107,80 +46,55 @@
 						uploadCompleted="handler.onUploadCompleted"
 						onActivated="onPluginActivated"
 						cloudFilePickerEnabled="true"
-						actions="uploadButton"
-						>
-							<rowConfiguration>
-								<upload.UploadItemConfiguration
+						actions="uploadButton">
+						<rowConfiguration>
+							<upload.UploadItemConfiguration
 								fileNamePath="fileName"
-								mediaTypePath="mediaType"
+								mediaTypePath="MediaType"
 								urlPath="url"
 								previewablePath="previewable"
-								fileSizePath="fileSize"
-                                isTrustedSourcePath="trustedSource"
-								/>
-							</rowConfiguration>
-						</plugins.UploadSetwithTable>
+								fileSizePath="size"
+								isTrustedSourcePath="trustedSource" />
+						</rowConfiguration>
+					</plugins.UploadSetwithTable>
 				</dependents>
 
-			<columns>
+				<columns>
 					<Column id="fileName" importance="High">
-						<header>
-							<Label text="File Name" />
-						</header>
+						<header><Label text="File Name" /></header>
 					</Column>
 					<Column id="id">
-						<header>
-							<Label text="ID" />
-						</header>
+						<header><Label text="ID" /></header>
 					</Column>
-					
 					<Column id="fileSize">
-						<header>
-							<Label text="File Size" />
-						</header>
+						<header><Label text="File Size" /></header>
+					</Column>
+					<Column id="url">
+						<header><Label text="url" /></header>
 					</Column>
 					<Column id="lastModified">
-						<header>
-							<Label text="Last Modified" />
-						</header>
+						<header><Label text="Last Modified" /></header>
 					</Column>
 					<Column id="actionButton" importance="High" />
-            </columns>
+				</columns>
 
-
-		<items>
-                <ColumnListItem>
-
-                <!-- Cells with cell template defining content for each column (cells and columns work with 1:1 mapping) -->
-                    <cells>
-                        <Text text="{fileName}" />
-                        <Text text="{ID}" />
-                       <Text
-                            text="{parts: ['size'], formatter: '.getFileSizeWithUnits'}"
-                        />
-                         <VBox>
-                            <Text text="{modifiedAt}" />
-                            <Text
-                                class="sapUiTinyMarginTop"
-                                text="{modifiedAt}"
-                            />
-                        </VBox>
-                       <Button
-                            class="sapUiTinyMarginBegin"
-                            type="Transparent"
-                            icon="sap-icon://decline"
-                            press="onRemoveHandler"
-                        />
-                    </cells>
-                </ColumnListItem>
-            </items>
-
-
-
-		</Table>
-	</f:content>
+				<items>
+					<ColumnListItem >
+						<cells>
+							<Link
+                                text="{fileName}"
+                                press="handler.openPreview"
+                                class="sapUiTinyMarginBottom"
+									/>
+							<Text text="{ID}" />
+							<Text text="{parts: ['size'] }" />
+							<Text text="{url}" />
+							<Text text="{modifiedAt}}" />
+							<Button type="Transparent" icon="sap-icon://decline" press="onRemoveHandler" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</f:content>
 	</f:DynamicPage>
-	
-
-
 </core:FragmentDefinition>
