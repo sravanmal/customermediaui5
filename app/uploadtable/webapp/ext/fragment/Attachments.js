@@ -4,6 +4,7 @@ sap.ui.define([
     'use strict';
 
     var Module = { 
+        // before upload starts
         onBeforeUploadStarts: function(oEvent) {
             MessageToast.show("Custom handler invoked.");
             const oUploadSetTable = this.byId("table-uploadSet");
@@ -16,6 +17,7 @@ sap.ui.define([
 					console.log(err);
 				})
         },
+        // after upload completed
         onUploadCompleted: function(oEvent) {
             const oUploadSetTable = this.byId("table-uploadSet");
             oUploadSetTable.getItems("items")
@@ -23,15 +25,11 @@ sap.ui.define([
             oBinding.refresh();
 
         },
+
+        // previewing the file 
         openPreview: function(oEvent) {
 			const originalUrl = oEvent.getSource().getBindingContext().getProperty("url");
             const sFileUrl = Module.transformUrl(originalUrl);
-            // if (sFileUrl) {
-            //     // Open the URL in a new tab for preview, or alternatively in an iframe/dialog if needed
-            //     window.open(sFileUrl, "_blank");
-            // } else {
-            //     console.error("File URL not found for preview.");
-            // }
 
             if (sFileUrl) {
                 fetch(sFileUrl)
@@ -43,11 +41,11 @@ sap.ui.define([
                         var oDialog = new sap.m.Dialog({
                             title: "File Preview",
                             contentWidth: "80%",
-                            contentHeight: "80%",
+                            contentHeight: "100%",
                             resizable: true,
                             draggable: true,
                             content: new sap.ui.core.HTML({
-                                content: `<iframe src="${fileURL}" width="100%" height="100%" style="border: none;"></iframe>`
+                                content: `<iframe src="${fileURL}" width="100%" height="1000%" style="border: none;"></iframe>`
                             }),
                             endButton: new sap.m.Button({
                                 text: "Close",
@@ -67,12 +65,9 @@ sap.ui.define([
             } else {
                 console.error("File URL not found for preview.");
             }
-
-
-            
-
-
 		},
+
+        // transforming the url to the path 
         transformUrl: function(originalUrl) {
             // Extract the media ID from the original URL using regex
             const idMatch = originalUrl.match(/media\(([^)]+)\)/);
@@ -86,7 +81,9 @@ sap.ui.define([
                 console.error("ID not found in the URL");
                 return null;
             }
-        },   
+        }, 
+        
+        // post call
          _createEntity: function (item) {
             var data = {
                 MediaType: item.getMediaType(),
@@ -113,7 +110,7 @@ sap.ui.define([
                 })
         })				
     },
-
+    // put call
     _uploadContent: function (item, id , oUploadSetTable) {
         var url = `/odata/v4/customer-master/media(${id})/content`
         var file = item._oFileObject;
@@ -122,10 +119,11 @@ sap.ui.define([
                     var reader = new FileReader();
                     reader.onload = function(event) {
                         var fileContent = event.target.result;
-                        console.log(fileContent);
+                        var byteArray = new Uint8Array(fileContent);
+                        console.log(byteArray);
                         fetch(url, {
                             method: 'PUT',
-                            body: fileContent
+                            body: byteArray
                         })
                         .then(function(putResponse) {
                             if (!putResponse.ok) {
@@ -139,9 +137,90 @@ sap.ui.define([
                             console.error("Error in upload sequence:", error);
                         });
                     };
-                    reader.readAsText(file);
+                    reader.readAsArrayBuffer(file);
                 };
-    }		
+    },
+    // on download button clicked 
+    onDownloadFiles : function(oEvent){
+
+        const oContexts = this.byId("table-uploadSet").getSelectedContexts();
+        if (oContexts && oContexts.length) {
+            oContexts.forEach((oContext) => Module.manualDownload(oContext));
+        }
+
+
+    },
+
+    // manually downloading the file function
+    manualDownload: function(context) {
+        // Assuming `context.url` is the URL of the file
+        const originalUrl = context.getProperty("url");
+        const sFileUrl = Module.transformUrl(originalUrl);
+        const filename = context.getProperty("fileName") || 'downloadedFile';
+    
+        // Create a temporary anchor element
+        const anchor = document.createElement('a');
+        anchor.href = sFileUrl;
+        anchor.download = filename;
+        
+        // Append anchor to the body, trigger download, then remove it
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+    },
+
+
+    // Table row selection handler
+		onSelectionChange: function(oEvent) {	
+
+
+            const oTable = oEvent.getSource();
+            const aSelectedItems = oTable?.getSelectedContexts();
+			const oDownloadBtn = this.byId("downloadSelectedButton");
+			const oEditUrlBtn = this.byId("editUrlButton");
+			const oRenameBtn = this.byId("renameButton");
+			const oRemoveDocumentBtn = this.byId("removeDocumentButton");
+
+			if (aSelectedItems.length > 0) {
+				oDownloadBtn.setEnabled(true);
+			} else {
+				oDownloadBtn.setEnabled(false);
+			}
+			if (aSelectedItems.length === 1){
+				oEditUrlBtn.setEnabled(true);
+				oRenameBtn.setEnabled(true);
+				oRemoveDocumentBtn.setEnabled(true);
+			} else {
+				oRenameBtn.setEnabled(false);
+				oEditUrlBtn.setEnabled(false);
+				oRemoveDocumentBtn.setEnabled(false);
+			}
+    },
+
+    // delete 
+    onRemoveButtonPress : function(oContext){
+        const oContexts = this.byId("table-uploadSet").getSelectedContexts();
+        console.log(oContexts);
+        if (oContexts && oContexts.length) {
+            oContexts.forEach((oContext) => 
+            {
+                const ID = oContext.getProperty("ID");
+                fetch(`/odata/v4/customer-master/media(${ID})`, {
+                    method: 'DELETE',
+                }).then((response)=>{
+                    if(!response.ok){
+                        throw new Error("Delete request failed.");
+                    }
+                    const oUploadSetTable = this.byId("table-uploadSet");
+                    const oBinding = oUploadSetTable.getBinding("items");
+                    oBinding.refresh();
+                })
+            })
+        }
+       
+
+
+    }	
     }
 
     return Module;
